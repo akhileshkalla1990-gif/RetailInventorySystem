@@ -1,0 +1,25 @@
+Imports System.Data.SqlClient
+
+Public Class LoginForm
+    Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
+        Dim query As String = "SELECT COUNT(*) FROM Users WHERE Username=@user AND Password=@pass"
+        
+        Using conn As New SqlConnection(DatabaseHelper.ConnectionString)
+            conn.Open()
+            Using cmd As New SqlCommand(query, conn)
+                cmd.Parameters.AddWithValue("@user", txtUser.Text)
+                cmd.Parameters.AddWithValue("@pass", txtPass.Text)
+                
+                Dim count As Integer = Convert.ToInt32(cmd.ExecuteScalar())
+                
+                If count > 0 Then
+                    Dim dash As New DashboardForm()
+                    dash.Show()
+                    Me.Hide()
+                Else
+                    MessageBox.Show("Invalid Credentials!")
+                End If
+            End Using
+        End Using
+    End Sub
+End Class

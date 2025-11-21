@@ -1,0 +1,83 @@
+Public Class InventoryForm
+    
+    ' Load Data on Form Start
+    Private Sub InventoryForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        LoadGrid()
+    End Sub
+
+    Private Sub LoadGrid()
+        Dim query As String = "SELECT * FROM Products"
+        dgvProducts.DataSource = DatabaseHelper.GetData(query)
+    End Sub
+
+    ' ADD PRODUCT
+    Private Sub btnAdd_Click(sender As Object, e As EventArgs) Handles btnAdd.Click
+        Dim query As String = "INSERT INTO Products (ProductName, Category, Price, StockQuantity) VALUES (@name, @cat, @price, @stock)"
+        Dim params As New Dictionary(Of String, Object) From {
+            {"@name", txtName.Text},
+            {"@cat", txtCategory.Text},
+            {"@price", Convert.ToDecimal(txtPrice.Text)},
+            {"@stock", Convert.ToInt32(txtStock.Text)}
+        }
+
+        If DatabaseHelper.ExecuteQuery(query, params) Then
+            MessageBox.Show("Product Added!")
+            LoadGrid()
+            ClearFields()
+        End If
+    End Sub
+
+    ' UPDATE PRODUCT
+    Private Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
+        If lblID.Text = "" Then Return
+
+        Dim query As String = "UPDATE Products SET ProductName=@name, Category=@cat, Price=@price, StockQuantity=@stock WHERE ProductID=@id"
+        Dim params As New Dictionary(Of String, Object) From {
+            {"@id", lblID.Text},
+            {"@name", txtName.Text},
+            {"@cat", txtCategory.Text},
+            {"@price", Convert.ToDecimal(txtPrice.Text)},
+            {"@stock", Convert.ToInt32(txtStock.Text)}
+        }
+
+        If DatabaseHelper.ExecuteQuery(query, params) Then
+            MessageBox.Show("Product Updated!")
+            LoadGrid()
+            ClearFields()
+        End If
+    End Sub
+
+    ' DELETE PRODUCT
+    Private Sub btnDelete_Click(sender As Object, e As EventArgs) Handles btnDelete.Click
+        If lblID.Text = "" Then Return
+
+        Dim query As String = "DELETE FROM Products WHERE ProductID=@id"
+        Dim params As New Dictionary(Of String, Object) From {{"@id", lblID.Text}}
+
+        If DatabaseHelper.ExecuteQuery(query, params) Then
+            MessageBox.Show("Product Deleted!")
+            LoadGrid()
+            ClearFields()
+        End If
+    End Sub
+
+    ' Populate Fields when clicking a row
+    Private Sub dgvProducts_CellClick(sender As Object, e As DataGridViewCellEventArgs) Handles dgvProducts.CellClick
+        If e.RowIndex >= 0 Then
+            Dim row As DataGridViewRow = dgvProducts.Rows(e.RowIndex)
+            lblID.Text = row.Cells("ProductID").Value.ToString()
+            txtName.Text = row.Cells("ProductName").Value.ToString()
+            txtCategory.Text = row.Cells("Category").Value.ToString()
+            txtPrice.Text = row.Cells("Price").Value.ToString()
+            txtStock.Text = row.Cells("StockQuantity").Value.ToString()
+        End If
+    End Sub
+
+    Private Sub ClearFields()
+        lblID.Text = ""
+        txtName.Clear()
+        txtCategory.Clear()
+        txtPrice.Clear()
+        txtStock.Clear()
+    End Sub
+End Class

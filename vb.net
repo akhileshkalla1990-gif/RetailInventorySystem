@@ -1,0 +1,45 @@
+Imports System.Data.SqlClient
+Imports System.Configuration
+
+Module DatabaseHelper
+    ' Fetch Connection String from App.config
+    Public ReadOnly Property ConnectionString As String
+        Get
+            Return ConfigurationManager.ConnectionStrings("MyConn").ConnectionString
+        End Get
+    End Property
+
+    ' Function to Execute Queries (Insert/Update/Delete)
+    Public Function ExecuteQuery(query As String, parameters As Dictionary(Of String, Object)) As Boolean
+        Using conn As New SqlConnection(ConnectionString)
+            Try
+                conn.Open()
+                Using cmd As New SqlCommand(query, conn)
+                    If parameters IsNot Nothing Then
+                        For Each param In parameters
+                            cmd.Parameters.AddWithValue(param.Key, param.Value)
+                        Next
+                    End If
+                    cmd.ExecuteNonQuery()
+                    Return True
+                End Using
+            Catch ex As Exception
+                MessageBox.Show("Error: " & ex.Message)
+                Return False
+            End Try
+        End Using
+    End Function
+
+    ' Function to Get Data (Select)
+    Public Function GetData(query As String) As DataTable
+        Dim dt As New DataTable()
+        Using conn As New SqlConnection(ConnectionString)
+            Using cmd As New SqlCommand(query, conn)
+                Using adapter As New SqlDataAdapter(cmd)
+                    adapter.Fill(dt)
+                End Using
+            End Using
+        End Using
+        Return dt
+    End Function
+End Module
