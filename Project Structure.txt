@@ -1,0 +1,8 @@
+RetailInventorySystem/
+│
+├── App.config             <-- Database connection string
+├── DatabaseHelper.vb      <-- Handles all DB connections (Clean Code)
+├── LoginForm.vb           <-- Login Screen
+├── DashboardForm.vb       <-- Main Menu
+├── InventoryForm.vb       <-- Manage Products Screen
+└── Program.vb             <-- App Entry Point
